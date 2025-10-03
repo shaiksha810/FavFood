@@ -1,0 +1,23 @@
+/* Root Variables */
+:root {
+  --bg: #fafbfc;
+  --text: #181818;
+  --primary: #ff4d4f;
+  --border: #e0e0e0;
+  --input-bg: #fff;
+  --input-border: #ccc;
+  --button-bg: var(--primary);
+  --button-text: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #181818;
+    --text: #fafbfc;
+    --border: #333;
+    --input-bg: #222;
+    --input-border: #444;
+    --button-bg: #ff4d4f;
+    --button-text: #fff;
+  }
+}

@@ -22,7 +22,7 @@ app.use(cors({
 
 app.use(express.json());
 app.use(cookieParser());
-app.use('https://favfood-kea0.onrender.com/api/auth', authRoute);
+app.use('/api/auth', authRoute);
 app.use('/api/food', foodRoute);
 app.use('/api/food-partner', foodPartnerRoutes);
 

@@ -13,20 +13,9 @@ const UserLogin = () => {
     const password = e.target.password.value;
 
     const response = await axios.post(
-<<<<<<< HEAD
-      "https://favfood-kea0.onrender.com/api/auth/user/login",
-      {
-        email,
-        password,
-      },
-      {
-        withCredentials: true,
-      }
-=======
-      `${API_URL}/api/auth/user/login`,
-      { email, password },
-      { withCredentials: true }
->>>>>>> edc397a (Fix: updated server config and env setup for deployment)
+`${API_URL}/api/auth/user/login`,
+{ email, password },
+{ withCredentials: true }
     );
 
     console.log(response.data);

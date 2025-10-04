@@ -15,7 +15,7 @@ const app = express();
 app.use(cors({
     origin: [
       "http://localhost:5173",        // dev
-      "https://favfood-kea0.onrender.com" // prod
+      "https://favfood-szkh.onrender.com/" // prod
     ],
     credentials: true
 }));
@@ -34,7 +34,7 @@ dbConnection();
 const frontendPath = path.join(__dirname, '../frontend/dist');
 console.log(frontendPath);
 
-// app.use(express.static(frontendPath));
+app.use(express.static(frontendPath));
 
 // Agar koi unknown route aaye to React ka index.html serve karna
 app.get(/.*/, (_, res) => {

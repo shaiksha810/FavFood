@@ -15,7 +15,7 @@ const UserRegister = () => {
     const password = e.target.password.value;    
 
      const response = await axios.post(
-      `${API_URL}/api/auth/user/login`,
+      `${API_URL}/api/auth/user/register`,
       { email, password,fullName },
       { withCredentials: true }
     );

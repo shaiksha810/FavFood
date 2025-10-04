@@ -35,8 +35,11 @@
 }
 
 .form-label {
-  font-size: 1rem;
-  font-weight: 500;
+    display: block;
+    font-weight: 600;
+    /* color: #374151; */
+    margin-bottom: 0.25rem;
+    font-size: 0.875rem;
 }
 
 .form-input {

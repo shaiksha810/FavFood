@@ -1,34 +1,33 @@
 const foodPartnerModel = require('../models/foodPartner.model');
-const foodModel = require('../models/food.model');
+const foodModel = require('../models/food.model')
 
-const getFoodPartnerById = async (req, res) => {
-  try {
+
+const getFoodPartnerById = async (req,res) => {
+
     const foodPartnerId = req.params.id;
-
-    // ✅ Fix: pass string id directly
-    const foodPartner = await foodPartnerModel.findById(foodPartnerId);
-
-    if (!foodPartner) {
-      return res.status(404).json({
-        message: "Food partner not found",
-      });
+    const foodPartner = await foodPartnerModel.findById({_id:foodPartnerId});
+    const foodItemsByFoodPartner = await foodModel.find({foodPartner:foodPartnerId})
+    
+    if(!foodPartner){
+        return res.status(404).json({
+            message:"food partner not found"
+        })
     }
 
-    const foodItemsByFoodPartner = await foodModel.find({ foodPartner: foodPartnerId });
 
     res.status(200).json({
-      message: "Food partner retrieved successfully",
-      foodPartner: {
-        ...foodPartner.toObject(),
-        foodItems: foodItemsByFoodPartner,
-      },
-    });
-  } catch (err) {
-    console.error("🔥 getFoodPartnerById error:", err.message);
-    res.status(500).json({ message: "Internal Server Error", error: err.message });
-  }
-};
+        message:"food partner retrieved successfully",
+        foodPartner: {
+            ...foodPartner.toObject(),
+            foodItems:foodItemsByFoodPartner
+        }
+    })
+
+}
+
+
+
 
 module.exports = {
-  getFoodPartnerById,
-};
+    getFoodPartnerById
+}

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const userModel = require('../models/auth.model')
 
 const commentSchema = new mongoose.Schema({
   food: {

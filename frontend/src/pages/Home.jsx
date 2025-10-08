@@ -97,23 +97,6 @@ const Home = () => {
     }
   };
 
-  const getSavedReels = async (id) => {
-    try {
-      const res = await axios.post(
-        `${API_URL}/api/food/saved`,
-        { foodId: id },
-        { withCredentials: true }
-      );
-      const { isSaved, savesCount } = res.data;
-      setSaved((prev) => ({ ...prev, [id]: isSaved }));
-      setSavesCount((prev) => ({ ...prev, [id]: savesCount }));
-      
-    } catch (err) {
-      console.error(err);
-    }
-  };
-  console.log(getSavedReels.data);
-
   return (
     <div className="container" onScroll={handleScroll}>
       {videos.map((item, index) => (
@@ -166,8 +149,8 @@ const Home = () => {
             </Link>
           </div>
         </div>
-      ))}
 
+      ))}
       <div className="bottom-nav">
         <Link to="/" className="nav-item">
           <FaHome /> <span>Home</span>

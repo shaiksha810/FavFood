@@ -108,6 +108,8 @@ const likeFood = async (req, res) => {
 const saveFood = async (req, res) => {
     const { foodId } = req.body;
     const userId = req.user._id;
+    // console.log(foodId,userId);
+    
 
     const existingSave = await saveModel.findOne({ user: userId, food: foodId });
 
@@ -145,6 +147,16 @@ const saveFood = async (req, res) => {
     });
 }
 
+// GET /api/food/saved
+const getSavedFoods = async (req, res) => {
+  try {
+    const userId = req.user._id; // JWT middleware se user mil gaya
+    const savedItems = await saveModel.find({ user: userId }).populate("food");
+    res.status(200).json(savedItems);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching saved foods", error });
+  }
+};
 
 
 module.exports = {
@@ -153,4 +165,5 @@ module.exports = {
     getAllFoods,
     likeFood,
     saveFood,
+    getSavedFoods
 };

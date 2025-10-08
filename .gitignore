@@ -9,8 +9,8 @@ backend/dist/
 backend/build/
 
 # Environment files
-.env
-*.env
+# .env
+# *.env
 
 # Logs
 npm-debug.log*
@@ -32,3 +32,6 @@ Thumbs.db
 # Cache
 .cache/
 .tmp/
+
+
+videos

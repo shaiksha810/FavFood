@@ -64,12 +64,16 @@ const Home = () => {
   }, []);
 
   const toggleLike = async (id) => {
+    console.log(id);
+    
     try {
       const res = await axios.post(
-        `${API_URL}/api/food`,
+        `${API_URL}/api/food/like`,
         { foodId: id },
         { withCredentials: true }
       );
+      console.log(res);
+      
       const { isLiked, likeCount } = res.data;
       setLiked((prev) => ({ ...prev, [id]: isLiked }));
       setLikesCount((prev) => ({ ...prev, [id]: likeCount }));

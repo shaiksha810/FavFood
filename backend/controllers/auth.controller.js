@@ -66,7 +66,13 @@ const userLogin = async (req,res) => {
     };
 
     const token = jwt.sign({ id:user._id }, process.env.JWT_SECRET);
-    res.cookie("token", token);
+    // res.cookie("token", token);
+    res.cookie("token", token, {
+    httpOnly: true,
+    secure: true,         // true for https (Render always uses https)
+    sameSite: "none",     // 👈 this is the most important for cross-origin
+});
+
 
 
 

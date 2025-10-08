@@ -11,9 +11,7 @@ import {
   FaHome,
 } from "react-icons/fa";
 
-  const API_URL = import.meta.env.VITE_API_URL; // 👈 ye env se aayega
-
-
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Home = () => {
   const [videos, setVideos] = useState([]);
@@ -22,6 +20,8 @@ const Home = () => {
   const [likesCount, setLikesCount] = useState({});
   const [saved, setSaved] = useState({});
   const [savesCount, setSavesCount] = useState({});
+  const [comments, setComments] = useState({});
+  const [commentInput, setCommentInput] = useState({});
 
   const handleScroll = () => {
     videoRefs.current.forEach((video) => {
@@ -38,11 +38,10 @@ const Home = () => {
   useEffect(() => {
     axios
       .get(`${API_URL}/api/food`, { withCredentials: true })
-      .then((res) => {
+      .then(async (res) => {
         const foodItems = res.data.foodItems;
         setVideos(foodItems);
 
-        // Initialize like/save states from API
         const initialLikes = {};
         const initialLikesCount = {};
         const initialSaved = {};
@@ -59,21 +58,32 @@ const Home = () => {
         setLikesCount(initialLikesCount);
         setSaved(initialSaved);
         setSavesCount(initialSavesCount);
+
+        // Fetch comments for each reel
+        const commentsObj = {};
+        for (const item of foodItems) {
+          try {
+            const resComments = await axios.get(
+              `${API_URL}/api/food/getcomments/${item._id}`,
+              { withCredentials: true }
+            );
+            commentsObj[item._id] = resComments.data.comments || [];
+          } catch {
+            commentsObj[item._id] = [];
+          }
+        }
+        setComments(commentsObj);
       })
       .catch((err) => console.error(err));
   }, []);
 
   const toggleLike = async (id) => {
-    console.log(id);
-    
     try {
       const res = await axios.post(
         `${API_URL}/api/food/like`,
         { foodId: id },
         { withCredentials: true }
       );
-      console.log(res);
-      
       const { isLiked, likeCount } = res.data;
       setLiked((prev) => ({ ...prev, [id]: isLiked }));
       setLikesCount((prev) => ({ ...prev, [id]: likeCount }));
@@ -97,6 +107,24 @@ const Home = () => {
     }
   };
 
+  const handleAddComment = async (id) => {
+    if (!commentInput[id]) return;
+    try {
+      const res = await axios.post(
+        `${API_URL}/api/food/addComment`, // ✅ correct endpoint
+        { foodId: id, text: commentInput[id] },
+        { withCredentials: true }
+      );
+      setComments((prev) => ({
+        ...prev,
+        [id]: [res.data.comment, ...(prev[id] || [])],
+      }));
+      setCommentInput((prev) => ({ ...prev, [id]: "" }));
+    } catch (err) {
+      console.error("Error adding comment:", err);
+    }
+  };
+
   return (
     <div className="container" onScroll={handleScroll}>
       {videos.map((item, index) => (
@@ -117,14 +145,13 @@ const Home = () => {
 
           {/* Right side icons */}
           <div className="actions">
-            {/* Like / Unlike */}
             <div className="action" onClick={() => toggleLike(item._id)}>
               {liked[item._id] ? (
                 <FaHeart className="icon liked" />
               ) : (
                 <FaRegHeart className="icon" />
               )}
-              <span>{likesCount[item._id] ?? 0}</span>{" "}
+              <span>{likesCount[item._id] ?? 0}</span>
             </div>
 
             <div className="action" onClick={() => toggleSave(item._id)}>
@@ -133,12 +160,12 @@ const Home = () => {
               ) : (
                 <FaRegBookmark className="icon" />
               )}
-              <span>{savesCount[item._id] ?? 0}</span>{" "}
+              <span>{savesCount[item._id] ?? 0}</span>
             </div>
 
             <div className="action">
               <FaCommentDots className="icon" />
-              <span>45</span>
+              <span>{(comments[item._id] || []).length}</span>
             </div>
           </div>
 
@@ -148,9 +175,35 @@ const Home = () => {
               Visit Store
             </Link>
           </div>
-        </div>
 
+          {/* Comments Section */}
+          <div className="comments-section">
+            <div className="comments-list">
+              {(comments[item._id] || []).map((comment, idx) => (
+                <div key={idx} className="comment">
+                  <strong>{comment.user?.name || "User"}:</strong> {comment.text}
+                </div>
+              ))}
+            </div>
+
+            <div className="add-comment">
+              <input
+                type="text"
+                placeholder="Add a comment..."
+                value={commentInput[item._id] || ""}
+                onChange={(e) =>
+                  setCommentInput((prev) => ({
+                    ...prev,
+                    [item._id]: e.target.value,
+                  }))
+                }
+              />
+              <button onClick={() => handleAddComment(item._id)}>Post</button>
+            </div>
+          </div>
+        </div>
       ))}
+
       <div className="bottom-nav">
         <Link to="/" className="nav-item">
           <FaHome /> <span>Home</span>

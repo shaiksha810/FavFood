@@ -3,6 +3,7 @@ const storageService = require('../services/storage.service');
 const likeModel = require('../models/likes.model');
 const saveModel = require('../models/save.model');
 const userModel = require('../models/auth.model');
+const commentModel = require('../models/comment.model')
 
 const { v4: uuid } = require('uuid');
 
@@ -156,8 +157,65 @@ const getSavedFoods = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Error fetching saved foods", error });
   }
+}
+
+
+// controllers/comment.controller.js
+
+const commentModel = require("../models/comment.model");
+
+// ➤ Add Comment
+const addComment = async (req, res) => {
+  try {
+    const { foodId, text } = req.body;
+
+    if (!foodId || !text) {
+      return res.status(400).json({ message: "foodId and text are required" });
+    }
+
+    const userId = req.user._id;
+
+    const newComment = await commentModel.create({
+      food: foodId,
+      user: userId,
+      text,
+    });
+
+    // populate user details so frontend me name dikhe
+    await newComment.populate("user", "name email");
+
+    res.status(201).json({
+      message: "Comment added successfully",
+      comment: newComment,
+    });
+  } catch (error) {
+    console.error("Error adding comment:", error);
+    res.status(500).json({ message: "Error adding comment", error });
+  }
 };
 
+// ➤ Get All Comments of a Food Item
+const getComments = async (req, res) => {
+  try {
+    const { foodId } = req.params;
+
+    if (!foodId) {
+      return res.status(400).json({ message: "foodId is required" });
+    }
+
+    const comments = await commentModel
+      .find({ food: foodId })
+      .populate("user", "name email")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({ comments });
+  } catch (error) {
+    console.error("Error fetching comments:", error);
+    res.status(500).json({ message: "Error fetching comments", error });
+  }
+};
+
+module.exports = { addComment, getComments };
 
 module.exports = {
     createFood,
@@ -165,5 +223,7 @@ module.exports = {
     getAllFoods,
     likeFood,
     saveFood,
-    getSavedFoods
+    getSavedFoods,
+    addComment,
+    getComments
 };

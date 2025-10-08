@@ -19,12 +19,12 @@ router.get('/',
     foodMiddleware.userMiddleware, 
     foodController.getFoodItems)
 
-
+//like route
 router.post('/like', 
     foodMiddleware.userMiddleware, 
     foodController.likeFood)
 
-
+//save routes
 router.post('/save', 
     foodMiddleware.userMiddleware,
     foodController.saveFood)
@@ -32,5 +32,16 @@ router.post('/save',
 router.get('/saved', 
     foodMiddleware.userMiddleware,
     foodController.getSavedFoods)
+
+
+//comments routes
+router.post("/addcomment",
+    foodMiddleware.userMiddleware, 
+    foodController.addComment)
+
+router.get("/getcomments/:foodId",
+    foodMiddleware.userMiddleware, 
+    foodController.getComments);
+
 
 module.exports = router;

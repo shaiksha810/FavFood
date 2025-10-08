@@ -10,7 +10,7 @@ const Saved = () => {
     axios
       .get(`${API_URL}/api/food/saved`, { withCredentials: true })
       .then((res) => {
-        console.log("Response:", res.data);
+        // console.log("Response:", res.data);
 
         // Backend se array aa raha hai (each item has 'food' inside)
         const data = Array.isArray(res.data)

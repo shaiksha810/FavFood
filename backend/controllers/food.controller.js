@@ -160,11 +160,7 @@ const getSavedFoods = async (req, res) => {
 }
 
 
-// controllers/comment.controller.js
 
-const commentModel = require("../models/comment.model");
-
-// ➤ Add Comment
 const addComment = async (req, res) => {
   try {
     const { foodId, text } = req.body;

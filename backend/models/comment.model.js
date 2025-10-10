@@ -4,12 +4,12 @@ const userModel = require('../models/auth.model')
 const commentSchema = new mongoose.Schema({
   food: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Food",
+    ref: "food",
     required: true,
   },
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: "user",
     required: true,
   },
   text: {

@@ -35,7 +35,7 @@ router.get('/saved',
 
 
 //comments routes
-router.post("/:id/comment",
+router.post("/addcomment",
     foodMiddleware.userMiddleware, 
     foodController.addComment)
 

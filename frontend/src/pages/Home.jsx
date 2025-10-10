@@ -121,8 +121,8 @@ const Home = () => {
 
     try {
       const res = await axios.post(
-        `${API_URL}/api/food/${id}/comment`,
-        { text },
+        `${API_URL}/api/food/addcomment`,
+        { foodId: id, text: commentInput[id] },
         { withCredentials: true }
       );
 

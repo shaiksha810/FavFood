@@ -108,7 +108,14 @@ const Home = () => {
       const res = await axios.get(`${API_URL}/api/food/${id}/comments`, {
         withCredentials: true,
       });
-      setComments((prev) => ({ ...prev, [id]: res.data.comments }));
+      const fetchedComments = res.data.comments;
+
+      setComments((prev) => ({ ...prev, [id]: fetchedComments }));
+      setVideos((prev) =>
+        prev.map((v) =>
+          v._id === id ? { ...v, commentCount: fetchedComments.length } : v
+        )
+      );
     } catch (err) {
       console.error("Error fetching comments:", err);
     }
@@ -177,7 +184,10 @@ const Home = () => {
               <span>{savesCount[item._id] ?? 0}</span>
             </div>
 
-            <div className="action" onClick={() => handleCommentClick(item._id)}>
+            <div
+              className="action"
+              onClick={() => handleCommentClick(item._id)}
+            >
               <FaCommentDots className="icon" />
               <span>{(comments[item._id] || []).length}</span>
             </div>
@@ -207,7 +217,7 @@ const Home = () => {
               <div className="comments-list">
                 {(comments[item._id] || []).map((comment, idx) => (
                   <div key={idx} className="comment">
-                    <strong>{comment.user?.name || "User"}:</strong>{" "}
+                    <strong>{comment.user?.fullName || "User"}:</strong>{" "}
                     {comment.text}
                   </div>
                 ))}

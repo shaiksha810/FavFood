@@ -185,7 +185,7 @@ const addComment = async (req, res) => {
     });
 
     // Populate user details for frontend display
-    newComment = await newComment.populate("user", "name email");
+    newComment = await newComment.populate("user");
 
     res.status(201).json({
       message: "Comment added successfully",
@@ -208,7 +208,7 @@ const getComments = async (req, res) => {
 
     const comments = await commentModel
       .find({ food: foodId })
-      .populate("user", "name email")
+      .populate("user")
       .sort({ createdAt: -1 });
 
     return res.status(200).json({

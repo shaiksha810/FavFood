@@ -16,13 +16,19 @@ const API_URL = import.meta.env.VITE_API_URL;
 const Home = () => {
   const [videos, setVideos] = useState([]);
   const videoRefs = useRef([]);
+
+  // Like & Save
   const [liked, setLiked] = useState({});
   const [likesCount, setLikesCount] = useState({});
   const [saved, setSaved] = useState({});
   const [savesCount, setSavesCount] = useState({});
+
+  // Comments
+  const [openCommentFor, setOpenCommentFor] = useState(null);
   const [comments, setComments] = useState({});
   const [commentInput, setCommentInput] = useState({});
 
+  // Auto play/pause scroll handler
   const handleScroll = () => {
     videoRefs.current.forEach((video) => {
       if (!video) return;
@@ -35,10 +41,11 @@ const Home = () => {
     });
   };
 
+  // Fetch videos
   useEffect(() => {
     axios
       .get(`${API_URL}/api/food`, { withCredentials: true })
-      .then(async (res) => {
+      .then((res) => {
         const foodItems = res.data.foodItems;
         setVideos(foodItems);
 
@@ -58,25 +65,11 @@ const Home = () => {
         setLikesCount(initialLikesCount);
         setSaved(initialSaved);
         setSavesCount(initialSavesCount);
-
-        // Fetch comments for each reel
-        const commentsObj = {};
-        for (const item of foodItems) {
-          try {
-            const resComments = await axios.get(
-              `${API_URL}/api/food/getcomments/${item._id}`,
-              { withCredentials: true }
-            );
-            commentsObj[item._id] = resComments.data.comments || [];
-          } catch {
-            commentsObj[item._id] = [];
-          }
-        }
-        setComments(commentsObj);
       })
-      .catch((err) => console.error(err));
+      .catch((err) => console.error("Error fetching food:", err));
   }, []);
 
+  // Like
   const toggleLike = async (id) => {
     try {
       const res = await axios.post(
@@ -92,6 +85,7 @@ const Home = () => {
     }
   };
 
+  // Save
   const toggleSave = async (id) => {
     try {
       const res = await axios.post(
@@ -107,21 +101,41 @@ const Home = () => {
     }
   };
 
+  // Show comments
+  const handleCommentClick = async (id) => {
+    setOpenCommentFor(id);
+    try {
+      const res = await axios.get(`${API_URL}/api/food/${id}/comments`, {
+        withCredentials: true,
+      });
+      setComments((prev) => ({ ...prev, [id]: res.data.comments }));
+    } catch (err) {
+      console.error("Error fetching comments:", err);
+    }
+  };
+
+  // Add comment
   const handleAddComment = async (id) => {
-    if (!commentInput[id]) return;
+    const text = commentInput[id]?.trim();
+    if (!text) return;
+
     try {
       const res = await axios.post(
-        `${API_URL}/api/food/addComment`, // ✅ correct endpoint
-        { foodId: id, text: commentInput[id] },
+        `${API_URL}/api/food/${id}/comment`,
+        { text },
         { withCredentials: true }
       );
+
+      const newComment = res.data.comment;
+
       setComments((prev) => ({
         ...prev,
-        [id]: [res.data.comment, ...(prev[id] || [])],
+        [id]: [...(prev[id] || []), newComment],
       }));
+
       setCommentInput((prev) => ({ ...prev, [id]: "" }));
     } catch (err) {
-      console.error("Error adding comment:", err);
+      console.error("Error posting comment:", err);
     }
   };
 
@@ -163,12 +177,13 @@ const Home = () => {
               <span>{savesCount[item._id] ?? 0}</span>
             </div>
 
-            <div className="action">
+            <div className="action" onClick={() => handleCommentClick(item._id)}>
               <FaCommentDots className="icon" />
               <span>{(comments[item._id] || []).length}</span>
             </div>
           </div>
 
+          {/* Overlay */}
           <div className="overlay">
             <p className="description">{item.description}</p>
             <Link to={`food-partner/${item.foodPartner}`} className="visit-btn">
@@ -176,34 +191,48 @@ const Home = () => {
             </Link>
           </div>
 
-          {/* Comments Section */}
-          <div className="comments-section">
-            <div className="comments-list">
-              {(comments[item._id] || []).map((comment, idx) => (
-                <div key={idx} className="comment">
-                  <strong>{comment.user?.name || "User"}:</strong> {comment.text}
-                </div>
-              ))}
-            </div>
+          {/* Comments Drawer */}
+          {openCommentFor === item._id && (
+            <div className="comment-drawer">
+              <div className="comment-header">
+                <h3>Comments</h3>
+                <button
+                  className="close-btn"
+                  onClick={() => setOpenCommentFor(null)}
+                >
+                  ✖
+                </button>
+              </div>
 
-            <div className="add-comment">
-              <input
-                type="text"
-                placeholder="Add a comment..."
-                value={commentInput[item._id] || ""}
-                onChange={(e) =>
-                  setCommentInput((prev) => ({
-                    ...prev,
-                    [item._id]: e.target.value,
-                  }))
-                }
-              />
-              <button onClick={() => handleAddComment(item._id)}>Post</button>
+              <div className="comments-list">
+                {(comments[item._id] || []).map((comment, idx) => (
+                  <div key={idx} className="comment">
+                    <strong>{comment.user?.name || "User"}:</strong>{" "}
+                    {comment.text}
+                  </div>
+                ))}
+              </div>
+
+              <div className="add-comment">
+                <input
+                  type="text"
+                  placeholder="Add a comment..."
+                  value={commentInput[item._id] || ""}
+                  onChange={(e) =>
+                    setCommentInput((prev) => ({
+                      ...prev,
+                      [item._id]: e.target.value,
+                    }))
+                  }
+                />
+                <button onClick={() => handleAddComment(item._id)}>Post</button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       ))}
 
+      {/* Bottom Navigation */}
       <div className="bottom-nav">
         <Link to="/" className="nav-item">
           <FaHome /> <span>Home</span>

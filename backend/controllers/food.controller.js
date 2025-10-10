@@ -160,25 +160,32 @@ const getSavedFoods = async (req, res) => {
 }
 
 
-
 const addComment = async (req, res) => {
   try {
     const { foodId, text } = req.body;
 
-    if (!foodId || !text) {
+    // Validate input
+    if (!foodId || !text?.trim()) {
       return res.status(400).json({ message: "foodId and text are required" });
     }
 
     const userId = req.user._id;
 
-    const newComment = await commentModel.create({
+    // Optional: ensure food exists
+    const foodExists = await foodModel.findById(foodId);
+    if (!foodExists) {
+      return res.status(404).json({ message: "Food item not found" });
+    }
+
+    // Create comment
+    let newComment = await commentModel.create({
       food: foodId,
       user: userId,
-      text,
+      text: text.trim(),
     });
 
-    // populate user details so frontend me name dikhe
-    await newComment.populate("user", "name email");
+    // Populate user details for frontend display
+    newComment = await newComment.populate("user", "name email");
 
     res.status(201).json({
       message: "Comment added successfully",
@@ -204,14 +211,21 @@ const getComments = async (req, res) => {
       .populate("user", "name email")
       .sort({ createdAt: -1 });
 
-    res.status(200).json({ comments });
+    return res.status(200).json({
+      success: true,
+      count: comments.length,
+      comments,
+    });
   } catch (error) {
     console.error("Error fetching comments:", error);
-    res.status(500).json({ message: "Error fetching comments", error });
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching comments",
+      error: error.message,
+    });
   }
 };
 
-module.exports = { addComment, getComments };
 
 module.exports = {
     createFood,

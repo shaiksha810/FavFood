@@ -35,11 +35,12 @@ router.get('/saved',
 
 
 //comments routes
-router.post("/addcomment",
+router.post("/:id/comment",
     foodMiddleware.userMiddleware, 
     foodController.addComment)
 
-router.get("/getcomments/:foodId",
+
+router.get("/:foodId/comments",
     foodMiddleware.userMiddleware, 
     foodController.getComments);
 
